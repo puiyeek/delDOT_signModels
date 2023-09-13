@@ -1,0 +1,397 @@
+Sub Main()
+
+'Text = Type 17
+'Complex Shape (sign backing) = Type 14
+'Grouped Hole (borders) = Type 2
+
+'[0,0,0] = Color 1021
+'SignCAD:WHITE [255,255,255] = Color 256
+'Varies = Color 0
+
+    'Enumerator acts as a container and we can loop through the items
+    Dim eE As ElementEnumerator
+    Dim oElement As Element
+    Dim oFont As Font
+    Dim oTs As TextElement
+    Dim col As Boolean
+    
+    'Select all items in the file
+    CadInputQueue.SendCommand "CHOOSE ALL"
+    'Sets our selection set to all of the items in the file
+    Set eE = ActiveModelReference.GetSelectedElements
+    
+    'Loop through items in the selection set
+    While eE.MoveNext
+        'Goes through the enumerator and sets the current element as an element
+        Set oElement = eE.Current
+        col = True
+        
+        'Change color to correct white
+        If col Then
+            Select Case oElement.Color
+            Case Is = 254
+                oElement.Color = 254
+                col = False
+            Case Is = 256
+                oElement.Color = 254
+                col = False
+            Case Is = 512
+                oElement.Color = 254
+                col = False
+            End Select
+        End If
+        
+        'Change color to correct black
+        If col Then
+            Select Case oElement.Color
+            Case Is = 255
+                oElement.Color = 255
+                col = False
+            Case Is = 1021
+                oElement.Color = 255
+                col = False
+            Case Is = 496
+                oElement.Color = 255
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:RED
+        If col Then
+            Select Case oElement.Color
+            Case Is = 197
+                oElement.Color = 197
+                col = False
+            Case Is = 1123
+                oElement.Color = 197
+                col = False
+            Case Is = 867
+                oElement.Color = 197
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:FORANGE
+        If col Then
+            Select Case oElement.Color
+            Case Is = 62
+                oElement.Color = 62
+                col = False
+            Case Is = 771
+                oElement.Color = 62
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:ORANGE
+        If col Then
+            Select Case oElement.Color
+            Case Is = 6
+                oElement.Color = 6
+                col = False
+            Case Is = 774
+                oElement.Color = 6
+                col = False
+            End Select
+        End If
+
+        
+        'SignCAD:YELLOW
+        If col Then
+            Select Case oElement.Color
+            Case Is = 218
+                oElement.Color = 218
+                col = False
+            Case Is = 772
+                oElement.Color = 218
+                col = False
+            Case Is = 1242
+                oElement.Color = 218
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:BRIGHT_YELLOW_GREEN
+        If col Then
+            Select Case oElement.Color
+            Case Is = 30
+                oElement.Color = 30
+                col = False
+            Case Is = 779
+                oElement.Color = 30
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:GREEN
+        If col Then
+            Select Case oElement.Color
+            Case Is = 182
+                oElement.Color = 182
+                col = False
+            Case Is = 898
+                oElement.Color = 182
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:BLUE
+        If col Then
+            Select Case oElement.Color
+            Case Is = 168
+                oElement.Color = 168
+                col = False
+            Case Is = 881
+                oElement.Color = 168
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:PURPLE
+        If col Then
+            Select Case oElement.Color
+            Case Is = 103
+                oElement.Color = 103
+                col = False
+            Case Is = 1073
+                oElement.Color = 103
+                col = False
+            Case Is = 817
+                oElement.Color = 103
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:PINK
+        If col Then
+            Select Case oElement.Color
+            Case Is = 778
+                oElement.Color = 193
+                col = False
+            Case Is = 193
+                oElement.Color = 193
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:BROWN
+        If col Then
+            Select Case oElement.Color
+            Case Is = 201
+                oElement.Color = 201
+                col = False
+            Case Is = 963
+                oElement.Color = 201
+                col = False
+            End Select
+        End If
+        
+        'SignCAD:MetalPost
+        If col Then
+            Select Case oElement.Color
+            Case Is = 222
+                oElement.Color = 222
+                col = False
+            Case Is = 832
+                oElement.Color = 222
+                col = False
+            Case Is = 1088
+                oElement.Color = 222
+                col = False
+            Case Is = 1344
+                oElement.Color = 222
+                col = False
+            Case Is = 1856
+                oElement.Color = 222
+                col = False
+            Case Else
+                WriteProperties oElement
+                col = False
+            End Select
+        End If
+        oElement.Rewrite
+        
+        'if element is text element
+        If oElement.Type = msdElementTypeText Then
+            'call font change method
+            ChangeFont oElement
+        End If
+        
+        'of element is text node
+        If oElement.Type = 7 Then
+            'create enumerator to go through each text node and seperate through the text elements
+            Dim eN As ElementEnumerator
+            Dim oTn As TextNodeElement
+    
+            Set oTn = oElement.AsTextNodeElement
+            Set eN = oTn.GetSubElements
+        
+            'go through all text elements in text node & call font change method
+            Do While eN.MoveNext
+                If (eN.Current.IsTextElement) Then
+                    ChangeFont eN.Current.AsTextElement
+                End If
+            Loop
+        End If
+
+        
+    Wend
+
+End Sub
+
+Sub WriteProperties(oElement As Element)
+On Error GoTo ErrHandler
+
+    'Enumerator acts as a container and we can loop through the items
+    Dim eE As ElementEnumerator
+    Dim oTs As TextElement
+    Dim oFont As Font
+    Dim FSO As New FileSystemObject
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    Set FileToWrite = FSO.OpenTextFile("C:\Users\puiyee.kong\OneDrive - STATE OF DELAWARE\ProjectWise\masterWriteProperties.txt", ForAppending)
+    Set FileError = FSO.OpenTextFile("C:\Users\puiyee.kong\OneDrive - STATE OF DELAWARE\ProjectWise\errorWriteProperties.txt", ForAppending)
+
+    FileToWrite.Write ActiveDesignFile.FullName & Chr(10)
+    FileToWrite.Write " " & ActiveModelReference.Name
+    FileToWrite.WriteBlankLines (2)
+    
+    'Print out element ID, type, and color (see comments for key)
+    FileToWrite.Write "   ElementID = " & oElement.ID.Low
+    FileToWrite.Write "   Element Type = " & oElement.Type
+    FileToWrite.Write "   Element Color = " & oElement.Color
+
+    'if the current element is text type
+    If oElement.Type = msdElementTypeText Then
+        'make naming convention easier
+        Set oTs = oElement.AsTextElement
+               
+            Dim oStyle  As TextStyle
+
+            Set oStyle = oTs.TextStyle
+                
+        'Print out element font
+        FileToWrite.Write "   Element Font = " & oTs.TextStyle.Font.Name
+    End If
+    FileToWrite.WriteBlankLines (2)
+    
+    FileToWrite.Close
+    Exit Sub
+    
+ErrHandler:
+    FileError.Write ActiveDesignFile.FullName & Chr(10)
+    'FileError.Write "     ElementID = " & oElement.ID.Low & Err.Description & " (" & Err.Number & ")"
+    FileError.Write "     Model Name = " & ActiveModelReference.Name
+    FileError.WriteBlankLines (2)
+    Resume Next
+End Sub
+
+
+'Change all fonts to Highway Gothic
+Sub ChangeFont(oTs As TextElement)
+               
+        Dim oStyle  As TextStyle
+
+        Set oStyle = oTs.TextStyle
+        Set oFont = ActiveDesignFile.Fonts.Find(msdFontTypeWindowsTrueType, "Highway Gothic")
+        Set oTs.TextStyle.Font = oFont
+                      
+        oTs.Redraw msdDrawingModeNormal
+        oTs.Rewrite
+End Sub
+
+
+
+Sub BatchWriteProperties()
+
+    'Enumerator acts as a container and we can loop through the items
+    Dim eE As ElementEnumerator
+    Dim oElement As Element
+    Dim oTs As TextElement
+    Dim oFont As Font
+    Dim FSO As New FileSystemObject
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    Set FileToWrite = FSO.OpenTextFile("C:\Users\puiyee.kong\OneDrive - STATE OF DELAWARE\ProjectWise\masterWriteProperties.txt", ForAppending)
+    
+    
+    'Select all items in the file
+    CadInputQueue.SendCommand "CHOOSE ALL"
+    'Sets our selection set to all of the items in the file
+    Set eE = ActiveModelReference.GetSelectedElements
+    
+    FileToWrite.Write ActiveDesignFile.FullName & Chr(10)
+    FileToWrite.Write " " & ActiveModelReference.Name
+    FileToWrite.WriteBlankLines (2)
+    
+    While eE.MoveNext
+        'Goes through the enumerator and sets the current element as an element
+        Set oElement = eE.Current
+    
+        'Print out element ID, type, and color (see comments for key)
+        FileToWrite.Write " ElementID = " & oElement.ID.Low
+        FileToWrite.Write "   Element Type = " & oElement.Type
+        FileToWrite.Write "   Element Color = " & oElement.Color
+
+     'if the current element is text type
+        If oElement.Type = msdElementTypeText Then
+            'make naming convention easier
+            Set oTs = oElement.AsTextElement
+               
+                Dim oStyle  As TextStyle
+
+                Set oStyle = oTs.TextStyle
+                
+            'Print out element font
+            FileToWrite.Write "   Element Font = " & oTs.TextStyle.Font.Name
+        End If
+    FileToWrite.WriteBlankLines (2)
+    Wend
+    
+    FileToWrite.Close
+
+End Sub
+
+
+
+Sub GroupedHole()
+    
+    Dim oElement As Element
+    Dim eN As ElementEnumerator
+    Dim eE As ElementEnumerator
+    
+    Dim FSO As New FileSystemObject
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    Set FileToWrite = FSO.OpenTextFile("C:\Users\puiyee.kong\OneDrive - STATE OF DELAWARE\ProjectWise\masterWriteProperties.txt", ForAppending)
+    
+    'Select all items in the file
+    CadInputQueue.SendCommand "CHOOSE ALL"
+    'Sets our selection set to all of the items in the file
+    Set eE = ActiveModelReference.GetSelectedElements
+    
+    'Loop through items in the selection set
+    While eE.MoveNext
+        'Goes through the enumerator and sets the current element as an element
+        Set oElement = eE.Current
+        
+
+    'if element is text node
+        If oElement.Type = 2 And oElement.Color = 0 Then
+            'create enumerator to go through each text node and seperate through the text elements
+            Set eN = oElement.AsComplexElement.GetSubElements
+            
+            FileToWrite.Write ActiveDesignFile.FullName & Chr(10)
+            FileToWrite.Write "     Model Name = " & ActiveModelReference.Name
+            FileToWrite.Write "     ElementID = " & oElement.ID.Low & Chr(10)
+        
+            'go through all text elements in text node & call font change method
+            While eN.MoveNext
+                FileToWrite.Write "         ElementID = " & eN.Current.ID.Low
+                FileToWrite.Write "   Element Type = " & eN.Current.Type
+                FileToWrite.Write "   Element Color = " & eN.Current.Color & Chr(10)
+            Wend
+        End If
+        FileToWrite.WriteBlankLines (2)
+    Wend
+End Sub
+
+
+
