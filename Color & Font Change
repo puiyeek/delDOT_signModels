@@ -1,0 +1,120 @@
+Sub Main()
+
+'Text = Type 17
+'Complex Shape (sign backing) = Type 14
+'Grouped Hole (borders) = Type 2
+
+'[0,0,0] = Color 1021
+'SignCAD:WHITE [255,255,255] = Color 256
+'Varies = Color 0
+
+    'Enumerator acts as a container and we can loop through the items
+    Dim eE As ElementEnumerator
+    Dim oElement As Element
+    Dim oFont As Font
+    Dim oTs As TextElement
+    
+    'Select all items in the file
+    CadInputQueue.SendCommand "CHOOSE ALL"
+    'Sets our selection set to all of the items in the file
+    Set eE = ActiveModelReference.GetSelectedElements
+    
+    DebugPrint
+    
+    'Loop through items in the selection set
+    While eE.MoveNext
+        'Goes through the enumerator and sets the current element as an element
+        Set oElement = eE.Current
+        
+        'If color is 256 (SignCAD: WHITE), change to 0
+        If oElement.Color = 56 Then
+            oElement.Color = 0
+            oElement.Rewrite
+        End If
+        
+        'if element is text element
+        If oElement.Type = msdElementTypeText Then
+            'call font change method
+            ChangeFont oElement
+        End If
+        
+        'of element is text node
+        If oElement.Type = 7 Then
+            'create enumerator to go through each text node and seperate through the text elements
+            Dim eN As ElementEnumerator
+            Dim oTn As TextNodeElement
+    
+            Set oTn = oElement.AsTextNodeElement
+            Set eN = oTn.GetSubElements
+        
+            'go through all text elements in text node & call font change method
+            Do While eN.MoveNext
+                If (eN.Current.IsTextElement) Then
+                    ChangeFont eN.Current.AsTextElement
+                End If
+            Loop
+        End If
+
+        
+    Wend
+
+   
+End Sub
+
+
+Sub DebugPrint()
+
+    'Enumerator acts as a container and we can loop through the items
+    Dim eE As ElementEnumerator
+    Dim oElement As Element
+    Dim oTs As TextElement
+    Dim oFont As Font
+    
+    
+    'Select all items in the file
+    CadInputQueue.SendCommand "CHOOSE ALL"
+    'Sets our selection set to all of the items in the file
+    Set eE = ActiveModelReference.GetSelectedElements
+    
+    While eE.MoveNext
+        'Goes through the enumerator and sets the current element as an element
+        Set oElement = eE.Current
+    
+        'Print out element ID, type, and color (see comments for key)
+        Debug.Print "ElementID = " & oElement.ID.Low
+        Debug.Print "   Element Type = " & oElement.Type
+        Debug.Print "   Element Color = " & oElement.Color
+        
+        'if the current element is text type
+        If oElement.Type = msdElementTypeText Then
+            'make naming convention easier
+            Set oTs = oElement.AsTextElement
+               
+                Dim oStyle  As TextStyle
+
+                Set oStyle = oTs.TextStyle
+                
+            'Print out element font
+            Debug.Print "   Element Font = " & oTs.TextStyle.Font.Name
+        End If
+        
+        Debug.Print ""
+    Wend
+End Sub
+
+
+'Change all fonts to Highway Gothic
+Sub ChangeFont(oTs As TextElement)
+               
+        Dim oStyle  As TextStyle
+
+        Set oStyle = oTs.TextStyle
+        Set oFont = ActiveDesignFile.Fonts.Find(msdFontTypeWindowsTrueType, "Highway Gothic")
+        Set oTs.TextStyle.Font = oFont
+                      
+        oTs.Redraw msdDrawingModeNormal
+        oTs.Rewrite
+End Sub
+
+
+
